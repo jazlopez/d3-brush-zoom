@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<style>
+
+    body {
+        font: 11px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .dot {
+        stroke: #000;
+    }
+
+    .tooltip {
+        position: absolute;
+        width: 200px;
+        height: 28px;
+        pointer-events: none;
+    }
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script type="application/javascript">
+var cValue = function(d) {
+return d.date;
+},
+color = d3.scale.category10();
+
+var data = [{
+"date": "30-Dec-16",
+"time": "Mon Dec 30 2016 16:29:23 GMT+0530 (India Standard Time)",
+"close": "30"
+},
+{
+"date": "27-Jan-17",
+"time": "Mon Jan 27 2017 11:29:23 GMT+0530 (India Standard Time)",
+"close": "20"
+},
+{
+"date": "1-Feb-17",
+"time": "Mon Feb 1 2017 15:29:23 GMT+0530 (India Standard Time)",
+"close": "10"
+},
+{
+"date": "10-Feb-17",
+"time": "Mon Feb 10 2017 21:29:23 GMT+0530 (India Standard Time)",
+"close": "10"
+}
+];
+var dateformat = d3.time.format("%H:%M").parse;
+var parseDate = d3.time.format("%d-%b-%y").parse;
+data.forEach(function(d) {
+d.date = parseDate(d.date);
+//d.time=formattedDateTime(d.time);
+//d3.time.format('%H %M')(new Date(d.time));
+var today = new Date()
+var time = new Date(d.time)
+today.setHours(time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds())
+d.time = today;
+});
+
+
+
+var width = 1660;
+height = 700;
+padding = 100;
+var margin = {
+top: 20,
+right: 20,
+bottom: 30,
+left: 40
+},
+width = 1260 - margin.left - margin.right,
+height = 500 - margin.top - margin.bottom;
+// create an svg container
+// add the graph canvas to the body of the webpage
+vis = d3.select("body").append("svg")
+.attr("width", width + margin.left + margin.right)
+.attr("height", height + margin.top + margin.bottom)
+.append("g")
+.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+// define the y scale  (vertical)
+
+
+var mindate = new Date(2012, 0, 1),
+maxdate = new Date(2012, 0, 31);
+
+var start_of_day = new Date()
+start_of_day.setHours(0,0,0,0)
+var end_of_day = new Date()
+end_of_day.setHours(23,59,59,999)
+
+var yScale = d3.time.scale()
+.domain([start_of_day, end_of_day])
+.nice(d3.time.day) // values between 0 and 100
+.range([height - padding, padding]); // map these to the chart height, less padding.
+//REMEMBER: y axis range has the bigger number first because the y value of zero is at the top of chart and increases as you go down.
+
+// define the x scale (horizontal)
+var mindate = new Date(2016, 11, 1),
+maxdate = new Date();
+
+var xScale = d3.time.scale()
+.domain([mindate, maxdate]) // values between for month of january
+.range([padding, width - padding * 2]); // map these the the chart width = total width minus padding at both sides
+
+
+// define the y axis
+
+var yValue = function(d) {
+return d.time;
+}; // data -> value
+var yMap = function(d) {
+return yScale(yValue(d));
+};
+var yAxis = d3.svg.axis()
+.orient("left")
+.scale(yScale).ticks(24).tickFormat(d3.time.format("%H:%M"));
+
+// define the x axis
+// setup x
+var xValue = function(d) {
+return d.date;
+}; // data -> value
+// value -> display
+xMap = function(d) {
+return xScale(xValue(d));
+};
+var xAxis = d3.svg.axis()
+.orient("bottom")
+.scale(xScale).tickFormat(d3.time.format("%Y-%m-%d"));
+
+// draw y axis with labels and move in from the size by the amount of padding
+vis.append("g")
+.attr("transform", "translate(" + padding + ",0)")
+.call(yAxis);
+
+// draw x axis with labels and move to the bottom of the chart area
+vis.append("g")
+.attr("class", "xaxis") // give it a class so it can be used to select only xaxis labels  below
+.attr("transform", "translate(0," + (height - padding) + ")")
+.call(xAxis);
+
+// draw dots
+vis.selectAll(".dot")
+.data(data)
+.enter().append("circle")
+.attr("class", "dot")
+.attr("r", 3.5)
+.attr("cx", xMap)
+.attr("cy", yMap)
+.style("fill", function(d) {
+return color(cValue(d));
+})
+.on("mouseover", function(d) {
+tooltip.transition()
+.duration(200)
+.style("opacity", .9);
+tooltip.html(d["Cereal Name"] + "<br/> (" + xValue(d) +
+", " + yValue(d) + ")")
+.style("left", (d3.event.pageX + 5) + "px")
+.style("top", (d3.event.pageY - 28) + "px");
+})
+.on("mouseout", function(d) {
+tooltip.transition()
+.duration(500)
+.style("opacity", 0);
+});
+
+// now rotate text on x axis
+// solution based on idea here: https://groups.google.com/forum/?fromgroups#!topic/d3-js/heOBPQF3sAY
+// first move the text left so no longer centered on the tick
+// then rotate up to get 45 degrees.
+vis.selectAll(".xaxis text") // select all the text elements for the xaxis
+.attr("transform", function(d) {
+return "translate(" + this.getBBox().height + "," + this.getBBox().height +")";
+});
+// draw legend
+var legend = vis.selectAll(".legend")
+.data(color.domain())
+.enter().append("g")
+.attr("class", "legend")
+.attr("transform", function(d, i) {
+return "translate(0," + i * 20 + ")";
+});
+
+// draw legend colored rectangles
+legend.append("rect")
+.attr("x", width - 18)
+.attr("width", 18)
+.attr("height", 18)
+.style("fill", color);
+
+// draw legend text
+legend.append("text")
+.attr("x", width - 24)
+.attr("y", 9)
+.attr("dy", ".35em")
+.style("text-anchor", "end")
+.text(function(d) {
+return d;
+});
+</script>
+</body>
+</html>
