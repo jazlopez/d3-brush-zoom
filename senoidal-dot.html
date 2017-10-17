@@ -2,14 +2,19 @@
 <meta charset="utf-8">
 <style>
 
+    * {
+        z-index: 0;
+    }
+
     .area {
-        fill: lightsteelblue;
+        /* fill: lightsteelblue; */
     }
 
     .line {
         fill: none;
-        stroke: steelblue;
-        stroke-width: 1.5px;
+        /* stroke: steelblue; */
+        stroke: #ddd;
+        stroke-width: 2px;
     }
 
     .dot {
@@ -18,80 +23,144 @@
         stroke-width: 1.5px;
     }
 
+    .red {
+
+        fill: red;
+        stroke: red;
+
+    }
+
+    .green {
+
+        fill: green;
+        stroke: green;
+
+    }
+
+    .hline {
+
+        fill: green;
+        stroke: green;
+    }
+
+    .axis {
+        /* fill: gray; */
+    }
+
+    .opaque {
+        opacity: 0.2;
+        z-index: -99;
+    }
+
 </style>
 <body>
-<script src="//d3js.org/d3.v4.min.js"></script>
+<h1>POC Spike</h1>
+<address>
+    <p>Levey-Jenins</p>
+    <p>3D.js</p>
+</address>
+
+<input type="button" value="D.Std" onclick="make_y_gridlines()">
+<input type="button" value="AVG" onclick="avg()">
+<script src="d3.v4.min.js"></script>
 <script>
 
     var data = [
         {
             x: 0.1,
-            y: 0.4
+            y: 0.2,
+            dot: 'dot red'
         },
         {
             x: 0.2,
-            y: 0.8
+            y: 0.9,
+            dot: 'dot red'
         },
         {
             x: 0.3,
-            y: 0.4
+            y: 0.3,
+            dot: 'dot green'
         },
         {
             x: 0.4,
-            y: 0.8
+            y: 0.7,
+            dot: 'dot green'
         },
         {
             x: 0.5,
-            y: 0.5
-        }
+            y: 0.4,
+            dot: 'dot green'
+        },
+        {
+            x: 0.6,
+            y: 0.8,
+            dot: 'dot red'
+        },
+        {
+            x: 0.7,
+            y: 0.2,
+            dot: 'dot red'
+        },
+        {
+            x: 0.8,
+            y: 0.6,
+            dot: 'dot green'
+        },
+        {
+            x: 0.9,
+            y: 0.4,
+            dot: 'dot green'
+        },
 
     ];
-
-    var data2 = [
-        {
-            x: 0.1,
-            y: 0.8
-        },
-        {
-            x: 0.2,
-            y: 0.8
-        },
-        {
-            x: 0.3,
-            y: 0.4
-        },
-        {
-            x: 0.4,
-            y: 0.8
-        },
-        {
-            x: 0.5,
-            y: 0.5
-        }
-
-    ];
-
-//    var data = d3.range(40).map(function(i) {
-//
-//        return i % 5 ? {x: i / 39, y: (Math.sin(i / 3) + 2) / 4} : null;
-//
-//    });
-
-    console.log(data);
 
     var margin = {top: 40, right: 40, bottom: 40, left: 40},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
-    console.log(data);
+    // console.log(data);
 
     var x = d3.scaleLinear().domain([0,1])
         .range([0, width]);
 
     var y = d3.scaleLinear().domain([0,1])
-        .range([height, 10]);
+        .range([height, 0]);
 
-     console.log(y);
+
+    function avg() {
+
+        svg.selectAll('line.visible').remove();
+    }
+    // gridlines in y axis function
+    function make_y_gridlines() {
+
+        for(var j = 100; j <= 300; j += 100) {
+
+            if ( j  === 200) {
+
+                //Draw the line
+                svg.append("line")
+                    .attr("x1", 0 )
+                    .attr("y1", j)
+                    .attr("x2", width)
+                    .attr("y2", j)
+                    .style("stroke", "#000")
+                    .attr('class', 'visible');
+            } else {
+
+                //Draw the line
+                svg.append("line")
+                    .attr("x1", 0)
+                    .attr("y1", j)
+                    .attr("x2", width)
+                    .attr("y2", j)
+                    .style("stroke", "#000")
+                    .style("stroke-dasharray", 10)
+                    .attr('class', 'visible');
+            }
+
+        }
+    }
 
 
     var line = d3.line()
@@ -107,6 +176,7 @@
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+
     svg.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height + ")")
@@ -121,12 +191,22 @@
         .attr("d", line);
 
     svg.selectAll(".dot")
-        .data(data.filter(function(d) { if (d.y == 0.4) {return d;}}))
+        .data(data.filter( function(d){ return d }))
         .enter().append("circle")
-        .attr("class", "dot")
+        .attr("class", function(d) {return d.dot})
         .attr("cx", line.x())
         .attr("cy", line.y())
-        .attr("r", 2)
+        .attr("r", 6);
 
+    for(j = 0, x=1; j <= 500; j+= 95, x++) {
 
+        //Draw the Rectangle
+        svg.append("rect")
+            .attr("x", j + ( 85 * x))
+            .attr("y", 20)
+            .attr("width", 90)
+            .attr("height", height - 20)
+            .attr('fill', 'lightgray')
+            .attr('class', 'opaque');
+    }
 </script>
