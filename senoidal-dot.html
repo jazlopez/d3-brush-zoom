@@ -21,6 +21,7 @@
         fill: white;
         stroke: steelblue;
         stroke-width: 1.5px;
+        cursor: pointer;
     }
 
     .red {
@@ -50,6 +51,13 @@
     .opaque {
         opacity: 0.2;
         z-index: -99;
+    }
+
+    .tooltip {
+        position: absolute;
+        width: 200px;
+        height: 28px;
+        pointer-events: none;
     }
 
 </style>
@@ -126,6 +134,11 @@
     var y = d3.scaleLinear().domain([0,1])
         .range([height, 0]);
 
+    // add the tooltip area to the webpage
+    var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
 
     function avg() {
 
@@ -190,23 +203,36 @@
         .attr("class", "line")
         .attr("d", line);
 
-    svg.selectAll(".dot")
-        .data(data.filter( function(d){ return d }))
-        .enter().append("circle")
-        .attr("class", function(d) {return d.dot})
-        .attr("cx", line.x())
-        .attr("cy", line.y())
-        .attr("r", 6);
-
-    for(j = 0, x=1; j <= 500; j+= 95, x++) {
+    for(var j = 0, yy=1; j <= 500; j+= 95, yy++) {
 
         //Draw the Rectangle
         svg.append("rect")
-            .attr("x", j + ( 85 * x))
+            .attr("x", j + ( 85 * yy))
             .attr("y", 20)
             .attr("width", 90)
             .attr("height", height - 20)
             .attr('fill', 'lightgray')
             .attr('class', 'opaque');
     }
+
+    svg.selectAll(".dot")
+        .data(data.filter( function(d){ return d }))
+        .enter().append("circle")
+        .attr("class", function(d) {return d.dot})
+        .attr("cx", line.x())
+        .attr("cy", line.y())
+        .attr("r", 6)
+        .on("mouseover", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9);
+            tooltip.html("You are at: <br/>(" + d.x + "," + d.y+")")
+                .style("left", (d3.event.pageX + 5) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+        })
+        .on("mouseout", function(d) {
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
 </script>
