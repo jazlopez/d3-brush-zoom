@@ -1,0 +1,101 @@
+* {
+    z-index: 0;
+}
+
+.area {
+    /* fill: lightsteelblue; */
+}
+
+.line {
+    fill: none;
+    /* stroke: steelblue; */
+    stroke: #8dc63f ;
+    stroke-width: 3px;
+}
+
+.dot {
+    fill: white;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+    cursor: pointer;
+}
+
+.red {
+
+    fill: #ff6861;
+    stroke: #ff6861;
+
+}
+
+.axis {
+
+    border: 1px solid red;
+}
+
+.green {
+
+    fill: green;
+    stroke: green;
+
+}
+
+.hline {
+
+    fill: green;
+    stroke: green;
+}
+
+.axis {
+    /* fill: gray; */
+}
+
+.opaque {
+    opacity: 0.2;
+    z-index: -99;
+}
+
+.tooltip {
+    position: absolute;
+    width: 200px;
+    height: 28px;
+    pointer-events: none;
+}
+
+.orange-dotted {
+
+    stroke: #f7941d;
+    stroke-width: 1px;
+    stroke-dasharray: 5;
+}
+
+.plot-legend {
+
+    font-family: "Helvetica Neue", SansSerif
+}
+
+.bold {
+
+    font-weight: 500;
+}
+
+.tick line{
+    stroke: #ddd;
+    stroke-opacity: 0.2;
+    stroke-width: 2px;
+}
+
+.tick text {
+    font-size: 12px;
+}
+
+.domain {
+
+    stroke-width: 2px;
+}
+
+#demo-data{
+    position: fixed;
+    top: 10px;
+    right: 600px;
+    width: 600px;
+}
